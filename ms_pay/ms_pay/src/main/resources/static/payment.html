@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagar</title>
+    <link rel="stylesheet" href="css/styles.css"> <!-- falta crear el archivo CSS -->
+</head>
+<body>
+<h1>Formulario de Pago</h1>
+<form id="payment-form">
+    <input type="text" id="description" placeholder="Descripción del pago" required>
+    <input type="number" id="amount" placeholder="Monto (en centavos)" required>
+    <input type="text" id="currency" placeholder="Moneda (ej: usd)" value="usd" required>
+    <input type="text" id="paymentMethod" placeholder="Método de pago (ej: card)" value="card" required>
+    <input type="email" id="payerEmail" placeholder="Correo del pagador" required>
+    <button type="submit">Pagar</button>
+</form>
+
+<script>
+    document.getElementById('payment-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const description = document.getElementById('description').value;
+        const amount = document.getElementById('amount').value;
+        const currency = document.getElementById('currency').value;
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const payerEmail = document.getElementById('payerEmail').value;
+
+        const paymentRequest = {
+            amount: parseInt(amount), // Convertir a entero
+            currency: currency,
+            description: description,
+            paymentMethod: paymentMethod,
+            payerEmail: payerEmail // Puedes agregar este campo a tu modelo si lo deseas
+        };
+
+        try {
+            const response = await fetch('/api/payments/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(paymentRequest)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const paymentIntent = await response.json();
+            console.log('Pago exitoso:', paymentIntent);
+            alert('Pago realizado con éxito. ID de transacción: ' + paymentIntent.id);
+        } catch (error) {
+            console.error('Error al procesar el pago:', error);
+            alert('Error al realizar el pago: ' + error.message);
+        }
+    });
+</script>
+</body>
+</html>
